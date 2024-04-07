@@ -1,0 +1,71 @@
+stages:
+  - build
+  - test
+  - report
+
+build-assignment:
+  stage: build
+  script:
+    - cp /data/GPUProg/RENDER/src/main.cpp src/main.cpp 
+    - cp /data/GPUProg/RENDER/src/render.cpp src/render.cpp
+    - cp /data/GPUProg/RENDER/src/dataset.cpp src/dataset.cpp
+    - cp /data/GPUProg/RENDER/include/dataset.h include/dataset.h
+    - cp /data/GPUProg/RENDER/include/render.h include/render.h
+    - cp /data/GPUProg/RENDER/include/helper/CPUTimer.h include/helper/CPUTimer.h
+    - cp /data/GPUProg/RENDER/include/helper/GPUTimer.cuh include/helper/GPUTimer.cuh
+    - cp /data/GPUProg/RENDER/include/helper/Utility.cuh include/helper/Utility.cuh
+    - cp /data/GPUProg/RENDER/include/helper/cuda_helper_host.h include/helper/cuda_helper_host.h
+    - cp /data/GPUProg/RENDER/include/helper/helper_math.h include/helper/helper_math.h
+    - mkdir build
+    - cd build
+    - cmake .. -DCC=75
+    - make clean
+    - make
+  tags:
+    - GPUProg
+  only:
+    - submission
+  artifacts:
+    paths:
+      - build/3dgs-render
+    expire_in: 2 h
+
+test-assignment:
+  stage: test
+  script:
+    - cp /data/GPUProg/copyResults_render.py copyResults.py
+    - cp /data/GPUProg/timedprocess.py timedprocess.py
+    - cp /data/GPUProg/execute_render.py execute.py
+    - cp /data/GPUProg/aggregateResultsAndPlot_render.py aggregateResultsAndPlot.py
+    - python execute.py
+    - python copyResults.py /data/GPUProg/results results.csv
+    - python aggregateResultsAndPlot.py -folder /data/GPUProg/results -plotname plot.pdf
+  tags:
+    - GPUProg
+  only:
+    - submission
+  artifacts:
+    paths:
+      - results.csv
+      - plot.pdf
+      - perf_table.csv
+      - summary_plot.pdf
+      - output
+    expire_in: 2 h
+
+collect-all:
+  stage: report
+  script:
+    - echo
+  tags:
+    - GPUProg
+  only:
+    - submission
+  artifacts:
+    paths:
+      - results.csv
+      - plot.pdf
+      - perf_table.csv
+      - summary_plot.pdf
+      - output
+    expire_in: 30 d

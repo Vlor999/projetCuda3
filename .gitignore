@@ -1,0 +1,15 @@
+
+# IDE files
+.vscode
+
+# Build files
+build
+
+# Output files
+out_cpu.png
+out_gpu.png
+diff.png
+results.csv
+
+# Profiling files
+profile
